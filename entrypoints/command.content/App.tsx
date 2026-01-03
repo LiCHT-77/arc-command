@@ -51,6 +51,7 @@ export default function App() {
 
 	return (
 		<CommandDialog
+			className="top-[15%] translate-y-0"
 			open={open}
 			onOpenChange={setOpen}
 			title="履歴検索"
