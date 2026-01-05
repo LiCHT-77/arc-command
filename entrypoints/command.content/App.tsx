@@ -1,18 +1,23 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	CommandDialog,
 	CommandEmpty,
-	CommandGroup,
 	CommandInput,
-	CommandItem,
 	CommandList,
 } from "@/components/ui/command";
-import { type HistoryItem, openTab, searchHistory } from "@/lib/messages";
+import { SearchResultItem } from "@/components/search-result-item";
+import { useSearch } from "@/lib/search/use-search";
+import { HistoryDataSource } from "@/lib/search/data-sources";
 
 export default function App() {
 	const [open, setOpen] = useState(false);
 	const [query, setQuery] = useState("");
-	const [items, setItems] = useState<HistoryItem[]>([]);
+
+	// DataSourceのインスタンスを作成（メモ化して再作成を防ぐ）
+	const historyDataSource = useMemo(() => new HistoryDataSource(), []);
+
+	// useSearchフックを使用して検索結果を取得
+	const { results } = useSearch(query, [historyDataSource]);
 
 	// cmd + shift + K でトグル
 	useEffect(() => {
@@ -27,26 +32,9 @@ export default function App() {
 		return () => document.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
-	// 検索クエリが変更されたら履歴を検索
-	useEffect(() => {
-		if (!query) {
-			setItems([]);
-			return;
-		}
-
-		const timeoutId = setTimeout(async () => {
-			const result = await searchHistory(query);
-			setItems(result.items);
-		}, 150); // debounce
-
-		return () => clearTimeout(timeoutId);
-	}, [query]);
-
-	const handleSelect = useCallback(async (url: string) => {
-		await openTab(url);
+	const handleSelect = useCallback(() => {
 		setOpen(false);
 		setQuery("");
-		setItems([]);
 	}, []);
 
 	return (
@@ -65,26 +53,13 @@ export default function App() {
 			/>
 			<CommandList>
 				<CommandEmpty>履歴が見つかりません</CommandEmpty>
-				{items.length > 0 && (
-					<CommandGroup heading="履歴">
-						{items.map((item) => (
-							<CommandItem
-								key={item.id}
-								value={item.url}
-								onSelect={() => handleSelect(item.url)}
-							>
-								<div className="flex flex-col gap-1 overflow-hidden">
-									<span className="truncate font-medium">
-										{item.title || item.url}
-									</span>
-									<span className="text-muted-foreground truncate text-xs">
-										{item.url}
-									</span>
-								</div>
-							</CommandItem>
-						))}
-					</CommandGroup>
-				)}
+				{results.map((result) => (
+					<SearchResultItem
+						key={result.id}
+						result={result}
+						onSelect={handleSelect}
+					/>
+				))}
 			</CommandList>
 		</CommandDialog>
 	);
