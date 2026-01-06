@@ -11,7 +11,7 @@ vi.mock("@/lib/messages", () => ({
 	switchToTab: vi.fn(),
 }));
 
-import { openTab, searchHistory, searchTabs, switchToTab } from "@/lib/messages";
+import { openTab, searchHistory, searchTabs } from "@/lib/messages";
 
 // テスト用のラッパーコンポーネント
 function TestWrapper({ children }: { children: React.ReactNode }) {

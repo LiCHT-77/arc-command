@@ -18,22 +18,22 @@ export default defineBackground(() => {
 				return true; // async response
 			}
 
-		if (isOpenTabMessage(message)) {
-			handleOpenTab(message.url);
-			return;
-		}
+			if (isOpenTabMessage(message)) {
+				handleOpenTab(message.url);
+				return;
+			}
 
-		if (isSearchTabsMessage(message)) {
-			handleSearchTabs(message.query).then(sendResponse);
-			return true; // async response
-		}
+			if (isSearchTabsMessage(message)) {
+				handleSearchTabs(message.query).then(sendResponse);
+				return true; // async response
+			}
 
-		if (isSwitchToTabMessage(message)) {
-			handleSwitchToTab(message.tabId);
-			return;
-		}
-	},
-);
+			if (isSwitchToTabMessage(message)) {
+				handleSwitchToTab(message.tabId);
+				return;
+			}
+		},
+	);
 });
 
 async function handleSearchHistory(

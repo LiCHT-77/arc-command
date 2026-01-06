@@ -13,9 +13,9 @@ import {
 	type Message,
 	openTab,
 	type SearchHistoryResponse,
+	type SearchTabsResponse,
 	searchHistory,
 	searchTabs,
-	type SearchTabsResponse,
 	switchToTab,
 	type TabItem,
 } from "./messages";
