@@ -9,10 +9,7 @@ interface SearchResultItemProps {
 /**
  * 検索結果アイテムを表示するコンポーネント
  */
-export function SearchResultItem({
-	result,
-	onSelect,
-}: SearchResultItemProps) {
+export function SearchResultItem({ result, onSelect }: SearchResultItemProps) {
 	const handleSelect = async () => {
 		await result.onSelect();
 		onSelect?.();

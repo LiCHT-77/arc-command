@@ -1,6 +1,6 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { openTab, searchHistory } from "@/lib/messages";
 import { HistoryDataSource } from "./history";
-import { searchHistory, openTab } from "@/lib/messages";
 
 // Mock the messages module
 vi.mock("@/lib/messages", () => ({

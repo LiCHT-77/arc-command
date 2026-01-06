@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { DataSource, SearchResult } from "./types";
 
 interface UseSearchOptions {
@@ -51,8 +51,7 @@ export function useSearch(
 						(result): result is PromiseFulfilledResult<SearchResult[]> =>
 							result.status === "fulfilled",
 					)
-					.map((result) => result.value)
-					.flat();
+					.flatMap((result) => result.value);
 
 				// 失敗したDataSourceのエラーをログに記録
 				settledResults.forEach((result, index) => {
@@ -66,9 +65,7 @@ export function useSearch(
 				});
 
 				// 結果をスコア順にソート
-				const mergedResults = allResults.sort(
-					(a, b) => b.score - a.score,
-				);
+				const mergedResults = allResults.sort((a, b) => b.score - a.score);
 
 				setResults(mergedResults);
 			} catch (error) {

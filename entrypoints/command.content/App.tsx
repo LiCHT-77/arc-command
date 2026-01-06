@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { SearchResultItem } from "@/components/search-result-item";
 import {
 	CommandDialog,
 	CommandEmpty,
 	CommandInput,
 	CommandList,
 } from "@/components/ui/command";
-import { SearchResultItem } from "@/components/search-result-item";
-import { useSearch } from "@/lib/search/use-search";
 import { HistoryDataSource } from "@/lib/search/data-sources";
+import { useSearch } from "@/lib/search/use-search";
 
 export default function App() {
 	const [open, setOpen] = useState(false);

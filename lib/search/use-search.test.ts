@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from "@testing-library/react";
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { useSearch } from "./use-search";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { DataSource, SearchResult } from "./types";
+import { useSearch } from "./use-search";
 
 describe("useSearch", () => {
 	let mockDataSource1: DataSource;
@@ -23,9 +23,7 @@ describe("useSearch", () => {
 
 	describe("初期状態", () => {
 		it("クエリが空の場合は空配列を返す", () => {
-			const { result } = renderHook(() =>
-				useSearch("", [mockDataSource1]),
-			);
+			const { result } = renderHook(() => useSearch("", [mockDataSource1]));
 
 			expect(result.current.results).toEqual([]);
 			expect(result.current.isLoading).toBe(false);
@@ -130,8 +128,7 @@ describe("useSearch", () => {
 			vi.mocked(mockDataSource1.search).mockResolvedValue([]);
 
 			const { rerender } = renderHook(
-				({ query }) =>
-					useSearch(query, [mockDataSource1], { debounceMs: 0 }),
+				({ query }) => useSearch(query, [mockDataSource1], { debounceMs: 0 }),
 				{
 					initialProps: { query: "test1" },
 				},
@@ -165,8 +162,7 @@ describe("useSearch", () => {
 			vi.mocked(mockDataSource1.search).mockResolvedValue(mockResults);
 
 			const { result, rerender } = renderHook(
-				({ query }) =>
-					useSearch(query, [mockDataSource1], { debounceMs: 0 }),
+				({ query }) => useSearch(query, [mockDataSource1], { debounceMs: 0 }),
 				{
 					initialProps: { query: "example" },
 				},
@@ -205,7 +201,9 @@ describe("useSearch", () => {
 				new Error("Network error"),
 			);
 
-			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			const consoleSpy = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
 
 			const { result } = renderHook(() =>
 				useSearch("example", [mockDataSource1, mockDataSource2], {
@@ -239,7 +237,9 @@ describe("useSearch", () => {
 				new Error("Network error 2"),
 			);
 
-			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+			const consoleSpy = vi
+				.spyOn(console, "error")
+				.mockImplementation(() => {});
 
 			const { result } = renderHook(() =>
 				useSearch("example", [mockDataSource1, mockDataSource2], {

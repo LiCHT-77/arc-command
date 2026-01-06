@@ -1,6 +1,6 @@
-import type { DataSource, SearchResult } from "../types";
-import { searchHistory, openTab } from "@/lib/messages";
 import type { HistoryItem } from "@/lib/messages";
+import { openTab, searchHistory } from "@/lib/messages";
+import type { DataSource, SearchResult } from "../types";
 
 /**
  * 履歴検索のデータソース
@@ -25,9 +25,9 @@ export class HistoryDataSource implements DataSource {
 	 */
 	private toSearchResult(item: HistoryItem, query: string): SearchResult {
 		const title = item.title || item.url;
-		const queryNormalized = query.toLowerCase().normalize('NFKC');
-		const titleNormalized = title.toLowerCase().normalize('NFKC');
-		const urlNormalized = item.url.toLowerCase().normalize('NFKC');
+		const queryNormalized = query.toLowerCase().normalize("NFKC");
+		const titleNormalized = title.toLowerCase().normalize("NFKC");
+		const urlNormalized = item.url.toLowerCase().normalize("NFKC");
 
 		// スコア計算: タイトルマッチ > URLマッチ、完全一致 > 部分一致
 		let score = 0;

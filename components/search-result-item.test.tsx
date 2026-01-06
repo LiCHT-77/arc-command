@@ -1,8 +1,8 @@
-import { render, screen, cleanup } from "@testing-library/react";
-import { describe, expect, it, vi, afterEach } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { Command } from "@/components/ui/command";
-import { SearchResultItem } from "./search-result-item";
 import type { SearchResult } from "@/lib/search/types";
+import { SearchResultItem } from "./search-result-item";
 
 // CommandItemはCommandコンテキストが必要なため、ラッパーを追加
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -65,7 +65,9 @@ describe("SearchResultItem", () => {
 		});
 
 		expect(screen.getByText("設定を開く")).toBeInTheDocument();
-		expect(screen.getByText("アプリケーションの設定を開きます")).toBeInTheDocument();
+		expect(
+			screen.getByText("アプリケーションの設定を開きます"),
+		).toBeInTheDocument();
 	});
 
 	it("タイトルが長い場合はtruncateされる", () => {
@@ -89,7 +91,7 @@ describe("SearchResultItem", () => {
 	});
 
 	it("サブタイトルが長い場合はtruncateされる", () => {
-		const longUrl = "https://example.com/" + "a".repeat(100);
+		const longUrl = `https://example.com/${"a".repeat(100)}`;
 		const result: SearchResult = {
 			id: "1",
 			type: "history",
