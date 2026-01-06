@@ -1,29 +1,29 @@
-import type { HistoryItem } from "@/lib/messages";
-import { openTab, searchHistory } from "@/lib/messages";
+import type { TabItem } from "@/lib/messages";
+import { searchTabs, switchToTab } from "@/lib/messages";
 import type { DataSource, SearchResult } from "../types";
 
 /**
- * 履歴検索のデータソース
+ * タブ検索のデータソース
  */
-export class HistoryDataSource implements DataSource {
-	type = "history" as const;
+export class TabDataSource implements DataSource {
+	type = "tab" as const;
 
 	/**
-	 * クエリに基づいて履歴を検索し、SearchResultに変換する
+	 * クエリに基づいてタブを検索し、SearchResultに変換する
 	 */
 	async search(query: string): Promise<SearchResult[]> {
 		if (!query.trim()) {
 			return [];
 		}
 
-		const response = await searchHistory(query);
+		const response = await searchTabs(query);
 		return response.items.map((item) => this.toSearchResult(item, query));
 	}
 
 	/**
-	 * HistoryItemをSearchResultに変換する
+	 * TabItemをSearchResultに変換する
 	 */
-	private toSearchResult(item: HistoryItem, query: string): SearchResult {
+	private toSearchResult(item: TabItem, query: string): SearchResult {
 		const title = item.title || item.url;
 		const queryNormalized = query.toLowerCase().normalize("NFKC");
 		const titleNormalized = title.toLowerCase().normalize("NFKC");
@@ -41,25 +41,22 @@ export class HistoryDataSource implements DataSource {
 			score = 0.4;
 		}
 
-		// 最近訪問したものほどスコアを上げる（最大0.1ポイント）
-		if (item.lastVisitTime) {
-			const daysSinceVisit =
-				(Date.now() - item.lastVisitTime) / (1000 * 60 * 60 * 24);
-			const recencyBonus = Math.max(0, 0.1 * (1 - daysSinceVisit / 30));
-			score += recencyBonus;
+		// アクティブなタブにはボーナスを付ける
+		if (item.active) {
+			score += 0.05;
 		}
 
 		score = Math.min(1, Math.max(0, score)); // 0-1の範囲に制限
 
 		return {
-			id: `history-${item.id}`,
-			type: "history",
+			id: `tab-${item.id}`,
+			type: "tab",
 			title,
 			subtitle: item.url,
 			url: item.url,
 			score,
 			onSelect: async () => {
-				await openTab(item.url);
+				await switchToTab(item.id);
 			},
 		};
 	}

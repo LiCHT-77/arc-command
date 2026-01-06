@@ -18,7 +18,7 @@ export function SearchResultItem({ result, onSelect }: SearchResultItemProps) {
 	const subtitle = result.subtitle || result.url;
 
 	return (
-		<CommandItem value={result.url || result.id} onSelect={handleSelect}>
+		<CommandItem value={result.id} onSelect={handleSelect}>
 			<div className="flex flex-col gap-1 overflow-hidden">
 				<span className="truncate font-medium">{result.title}</span>
 				{subtitle && (

@@ -7,9 +7,11 @@ import App from "./App";
 vi.mock("@/lib/messages", () => ({
 	searchHistory: vi.fn(),
 	openTab: vi.fn(),
+	searchTabs: vi.fn(),
+	switchToTab: vi.fn(),
 }));
 
-import { openTab, searchHistory } from "@/lib/messages";
+import { openTab, searchHistory, searchTabs, switchToTab } from "@/lib/messages";
 
 // テスト用のラッパーコンポーネント
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -23,6 +25,8 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
 describe("App", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		// デフォルトでsearchTabsは空の結果を返す
+		vi.mocked(searchTabs).mockResolvedValue({ items: [] });
 	});
 
 	afterEach(() => {

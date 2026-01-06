@@ -53,7 +53,7 @@ describe("HistoryDataSource", () => {
 			expect(searchHistory).toHaveBeenCalledWith("example");
 			expect(results).toHaveLength(2);
 			expect(results[0]).toMatchObject({
-				id: "1",
+				id: "history-1",
 				type: "history",
 				title: "Example Site",
 				url: "https://example.com",
