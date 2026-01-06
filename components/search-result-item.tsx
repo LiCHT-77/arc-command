@@ -19,11 +19,18 @@ export function SearchResultItem({ result, onSelect }: SearchResultItemProps) {
 
 	return (
 		<CommandItem value={result.id} onSelect={handleSelect}>
-			<div className="flex flex-col gap-1 overflow-hidden">
-				<span className="truncate font-medium">{result.title}</span>
-				{subtitle && (
-					<span className="text-muted-foreground truncate text-xs">
-						{subtitle}
+			<div className="flex w-full items-center justify-between gap-2">
+				<div className="flex flex-col gap-1 overflow-hidden">
+					<span className="truncate font-medium">{result.title}</span>
+					{subtitle && (
+						<span className="text-muted-foreground truncate text-xs">
+							{subtitle}
+						</span>
+					)}
+				</div>
+				{result.type === "tab" && (
+					<span className="text-muted-foreground flex-shrink-0 text-xs">
+						Switch Tab →
 					</span>
 				)}
 			</div>
