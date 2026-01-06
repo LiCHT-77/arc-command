@@ -25,19 +25,19 @@ export class HistoryDataSource implements DataSource {
 	 */
 	private toSearchResult(item: HistoryItem, query: string): SearchResult {
 		const title = item.title || item.url;
-		const queryLower = query.toLowerCase();
-		const titleLower = title.toLowerCase();
-		const urlLower = item.url.toLowerCase();
+		const queryNormalized = query.toLowerCase().normalize('NFKC');
+		const titleNormalized = title.toLowerCase().normalize('NFKC');
+		const urlNormalized = item.url.toLowerCase().normalize('NFKC');
 
 		// スコア計算: タイトルマッチ > URLマッチ、完全一致 > 部分一致
 		let score = 0;
-		if (titleLower === queryLower) {
+		if (titleNormalized === queryNormalized) {
 			score = 1.0;
-		} else if (titleLower.startsWith(queryLower)) {
+		} else if (titleNormalized.startsWith(queryNormalized)) {
 			score = 0.8;
-		} else if (titleLower.includes(queryLower)) {
+		} else if (titleNormalized.includes(queryNormalized)) {
 			score = 0.6;
-		} else if (urlLower.includes(queryLower)) {
+		} else if (urlNormalized.includes(queryNormalized)) {
 			score = 0.4;
 		}
 

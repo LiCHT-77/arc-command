@@ -45,6 +45,7 @@ export default function App() {
 			title="履歴検索"
 			description="ブラウザの履歴を検索します"
 			showCloseButton={false}
+			shouldFilter={false}
 		>
 			<CommandInput
 				placeholder="履歴を検索..."
