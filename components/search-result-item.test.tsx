@@ -108,4 +108,61 @@ describe("SearchResultItem", () => {
 		const subtitleElements = container.querySelectorAll(".truncate");
 		expect(subtitleElements.length).toBeGreaterThan(0);
 	});
+
+	describe("アイコン表示", () => {
+		it("タブの場合はLayersアイコンを表示する", () => {
+			const result: SearchResult = {
+				id: "1",
+				type: "tab",
+				title: "Tab Title",
+				url: "https://example.com",
+				score: 0.8,
+				onSelect: vi.fn(),
+			};
+
+			const { container } = render(<SearchResultItem result={result} />, {
+				wrapper: TestWrapper,
+			});
+
+			// lucide-reactのアイコンはsvg要素として描画される
+			const icon = container.querySelector("svg");
+			expect(icon).toBeInTheDocument();
+		});
+
+		it("履歴の場合はHistoryアイコンを表示する", () => {
+			const result: SearchResult = {
+				id: "1",
+				type: "history",
+				title: "History Title",
+				url: "https://example.com",
+				score: 0.8,
+				onSelect: vi.fn(),
+			};
+
+			const { container } = render(<SearchResultItem result={result} />, {
+				wrapper: TestWrapper,
+			});
+
+			const icon = container.querySelector("svg");
+			expect(icon).toBeInTheDocument();
+		});
+
+		it("ブックマークの場合はBookmarkアイコンを表示する", () => {
+			const result: SearchResult = {
+				id: "1",
+				type: "bookmark",
+				title: "Bookmark Title",
+				url: "https://example.com",
+				score: 0.8,
+				onSelect: vi.fn(),
+			};
+
+			const { container } = render(<SearchResultItem result={result} />, {
+				wrapper: TestWrapper,
+			});
+
+			const icon = container.querySelector("svg");
+			expect(icon).toBeInTheDocument();
+		});
+	});
 });

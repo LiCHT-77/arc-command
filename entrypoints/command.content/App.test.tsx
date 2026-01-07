@@ -5,13 +5,19 @@ import App from "./App";
 
 // Mock the messages module
 vi.mock("@/lib/messages", () => ({
+	searchBookmarks: vi.fn(),
 	searchHistory: vi.fn(),
 	openTab: vi.fn(),
 	searchTabs: vi.fn(),
 	switchToTab: vi.fn(),
 }));
 
-import { openTab, searchHistory, searchTabs } from "@/lib/messages";
+import {
+	openTab,
+	searchBookmarks,
+	searchHistory,
+	searchTabs,
+} from "@/lib/messages";
 
 // テスト用のラッパーコンポーネント
 function TestWrapper({ children }: { children: React.ReactNode }) {
@@ -25,7 +31,8 @@ function TestWrapper({ children }: { children: React.ReactNode }) {
 describe("App", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
-		// デフォルトでsearchTabsは空の結果を返す
+		// デフォルトで空の結果を返す
+		vi.mocked(searchBookmarks).mockResolvedValue({ items: [] });
 		vi.mocked(searchTabs).mockResolvedValue({ items: [] });
 	});
 

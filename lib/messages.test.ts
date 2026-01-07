@@ -1,19 +1,24 @@
 // @vitest-environment node
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
+	type BookmarkItem,
 	createOpenTabMessage,
+	createSearchBookmarksMessage,
 	createSearchHistoryMessage,
 	createSearchTabsMessage,
 	createSwitchToTabMessage,
 	type HistoryItem,
 	isOpenTabMessage,
+	isSearchBookmarksMessage,
 	isSearchHistoryMessage,
 	isSearchTabsMessage,
 	isSwitchToTabMessage,
 	type Message,
 	openTab,
+	type SearchBookmarksResponse,
 	type SearchHistoryResponse,
 	type SearchTabsResponse,
+	searchBookmarks,
 	searchHistory,
 	searchTabs,
 	switchToTab,
@@ -271,6 +276,75 @@ describe("messages", () => {
 				type: "SWITCH_TO_TAB",
 				tabId: 123,
 			});
+		});
+	});
+
+	describe("createSearchBookmarksMessage", () => {
+		it("SEARCH_BOOKMARKS メッセージを作成する", () => {
+			const message = createSearchBookmarksMessage("test query");
+
+			expect(message).toEqual({
+				type: "SEARCH_BOOKMARKS",
+				query: "test query",
+			});
+		});
+
+		it("空のクエリでもメッセージを作成できる", () => {
+			const message = createSearchBookmarksMessage("");
+
+			expect(message).toEqual({
+				type: "SEARCH_BOOKMARKS",
+				query: "",
+			});
+		});
+	});
+
+	describe("isSearchBookmarksMessage", () => {
+		it("SEARCH_BOOKMARKS メッセージの場合は true を返す", () => {
+			const message: Message = { type: "SEARCH_BOOKMARKS", query: "test" };
+
+			expect(isSearchBookmarksMessage(message)).toBe(true);
+		});
+
+		it("他のメッセージの場合は false を返す", () => {
+			const message: Message = { type: "OPEN_TAB", url: "https://example.com" };
+
+			expect(isSearchBookmarksMessage(message)).toBe(false);
+		});
+	});
+
+	describe("searchBookmarks", () => {
+		let removeListener: () => void;
+
+		beforeEach(() => {
+			removeListener = () => {};
+		});
+
+		afterEach(() => {
+			removeListener();
+		});
+
+		it("background に SEARCH_BOOKMARKS メッセージを送信して結果を返す", async () => {
+			const mockItems: BookmarkItem[] = [
+				{
+					id: "1",
+					url: "https://example.com",
+					title: "Example Bookmark",
+				},
+			];
+			const mockResponse: SearchBookmarksResponse = { items: mockItems };
+
+			const listener = (message: Message) => {
+				if (message.type === "SEARCH_BOOKMARKS") {
+					return Promise.resolve(mockResponse);
+				}
+			};
+			browser.runtime.onMessage.addListener(listener);
+			removeListener = () => browser.runtime.onMessage.removeListener(listener);
+
+			const result = await searchBookmarks("example");
+
+			expect(result).toEqual(mockResponse);
 		});
 	});
 });

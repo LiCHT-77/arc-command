@@ -20,11 +20,17 @@ export type SwitchToTabMessage = {
 	tabId: number;
 };
 
+export type SearchBookmarksMessage = {
+	type: "SEARCH_BOOKMARKS";
+	query: string;
+};
+
 export type Message =
 	| SearchHistoryMessage
 	| OpenTabMessage
 	| SearchTabsMessage
-	| SwitchToTabMessage;
+	| SwitchToTabMessage
+	| SearchBookmarksMessage;
 
 // 履歴アイテム型
 export type HistoryItem = {
@@ -50,6 +56,17 @@ export type TabItem = {
 
 export type SearchTabsResponse = {
 	items: TabItem[];
+};
+
+// ブックマークアイテム型
+export type BookmarkItem = {
+	id: string;
+	url: string;
+	title: string;
+};
+
+export type SearchBookmarksResponse = {
+	items: BookmarkItem[];
 };
 
 // メッセージ作成ユーティリティ
@@ -83,6 +100,15 @@ export function createSwitchToTabMessage(tabId: number): SwitchToTabMessage {
 	};
 }
 
+export function createSearchBookmarksMessage(
+	query: string,
+): SearchBookmarksMessage {
+	return {
+		type: "SEARCH_BOOKMARKS",
+		query,
+	};
+}
+
 // 型ガード
 export function isSearchHistoryMessage(
 	message: Message,
@@ -106,6 +132,12 @@ export function isSwitchToTabMessage(
 	return message.type === "SWITCH_TO_TAB";
 }
 
+export function isSearchBookmarksMessage(
+	message: Message,
+): message is SearchBookmarksMessage {
+	return message.type === "SEARCH_BOOKMARKS";
+}
+
 // Content Script から Background への通信ユーティリティ
 export async function searchHistory(
 	query: string,
@@ -123,4 +155,10 @@ export async function searchTabs(query: string): Promise<SearchTabsResponse> {
 
 export async function switchToTab(tabId: number): Promise<void> {
 	await browser.runtime.sendMessage(createSwitchToTabMessage(tabId));
+}
+
+export async function searchBookmarks(
+	query: string,
+): Promise<SearchBookmarksResponse> {
+	return browser.runtime.sendMessage(createSearchBookmarksMessage(query));
 }

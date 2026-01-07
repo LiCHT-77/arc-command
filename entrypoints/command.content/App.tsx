@@ -7,7 +7,11 @@ import {
 	CommandInput,
 	CommandList,
 } from "@/components/ui/command";
-import { HistoryDataSource, TabDataSource } from "@/lib/search/data-sources";
+import {
+	BookmarkDataSource,
+	HistoryDataSource,
+	TabDataSource,
+} from "@/lib/search/data-sources";
 import { deduplicateByUrl } from "@/lib/search/deduplicate-by-url";
 import { useSearch } from "@/lib/search/use-search";
 import { useShadowContainer } from "@/lib/shadow-container-context";
@@ -19,11 +23,16 @@ export default function App() {
 	const shadowContainer = useShadowContainer();
 
 	// DataSourceのインスタンスを作成（メモ化して再作成を防ぐ）
+	const bookmarkDataSource = useMemo(() => new BookmarkDataSource(), []);
 	const historyDataSource = useMemo(() => new HistoryDataSource(), []);
 	const tabDataSource = useMemo(() => new TabDataSource(), []);
 
 	// useSearchフックを使用して検索結果を取得
-	const { results } = useSearch(query, [tabDataSource, historyDataSource]);
+	const { results } = useSearch(query, [
+		tabDataSource,
+		bookmarkDataSource,
+		historyDataSource,
+	]);
 
 	// 同じURLの結果はタブを優先して重複を除去
 	const filteredResults = useMemo(() => deduplicateByUrl(results), [results]);
@@ -81,14 +90,14 @@ export default function App() {
 						検索
 					</DialogPrimitive.Title>
 					<DialogPrimitive.Description className="sr-only">
-						タブと履歴を検索します
+						タブ、ブックマーク、履歴を検索します
 					</DialogPrimitive.Description>
 					<Command
 						shouldFilter={false}
 						className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
 					>
 						<CommandInput
-							placeholder="タブ・履歴を検索..."
+							placeholder="タブ・ブックマーク・履歴を検索..."
 							value={query}
 							onValueChange={setQuery}
 						/>

@@ -1,9 +1,11 @@
 import {
 	isOpenTabMessage,
+	isSearchBookmarksMessage,
 	isSearchHistoryMessage,
 	isSearchTabsMessage,
 	isSwitchToTabMessage,
 	type Message,
+	type SearchBookmarksResponse,
 	type SearchHistoryResponse,
 	type SearchTabsResponse,
 } from "@/lib/messages";
@@ -14,7 +16,12 @@ export default defineBackground(() => {
 	browser.runtime.onMessage.addListener(
 		(message: Message, _sender, sendResponse) => {
 			if (isSearchHistoryMessage(message)) {
-				handleSearchHistory(message.query).then(sendResponse);
+				handleSearchHistory(message.query)
+					.then(sendResponse)
+					.catch((error) => {
+						console.error("Search history failed:", error);
+						sendResponse({ items: [] });
+					});
 				return true; // async response
 			}
 
@@ -24,13 +31,28 @@ export default defineBackground(() => {
 			}
 
 			if (isSearchTabsMessage(message)) {
-				handleSearchTabs(message.query).then(sendResponse);
+				handleSearchTabs(message.query)
+					.then(sendResponse)
+					.catch((error) => {
+						console.error("Search tabs failed:", error);
+						sendResponse({ items: [] });
+					});
 				return true; // async response
 			}
 
 			if (isSwitchToTabMessage(message)) {
 				handleSwitchToTab(message.tabId);
 				return;
+			}
+
+			if (isSearchBookmarksMessage(message)) {
+				handleSearchBookmarks(message.query)
+					.then(sendResponse)
+					.catch((error) => {
+						console.error("Search bookmarks failed:", error);
+						sendResponse({ items: [] });
+					});
+				return true; // async response
 			}
 		},
 	);
@@ -105,4 +127,21 @@ function handleSwitchToTab(tabId: number): void {
 			browser.windows.update(tab.windowId, { focused: true });
 		}
 	});
+}
+
+async function handleSearchBookmarks(
+	query: string,
+): Promise<SearchBookmarksResponse> {
+	const results = await browser.bookmarks.search(query);
+
+	// フォルダを除外し、URLがあるブックマークのみを返す
+	return {
+		items: results
+			.filter((item) => item.url)
+			.map((item) => ({
+				id: item.id,
+				url: item.url ?? "",
+				title: item.title ?? "",
+			})),
+	};
 }
