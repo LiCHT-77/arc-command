@@ -71,6 +71,7 @@ async function handleSearchTabs(query: string): Promise<SearchTabsResponse> {
 				title: tab.title ?? "",
 				windowId: tab.windowId ?? 0,
 				active: tab.active ?? false,
+				pinned: tab.pinned ?? false,
 			})),
 		};
 	}
@@ -90,6 +91,7 @@ async function handleSearchTabs(query: string): Promise<SearchTabsResponse> {
 			title: tab.title ?? "",
 			windowId: tab.windowId ?? 0,
 			active: tab.active ?? false,
+			pinned: tab.pinned ?? false,
 		})),
 	};
 }

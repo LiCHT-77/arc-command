@@ -46,6 +46,11 @@ export class TabDataSource implements DataSource {
 			score += 0.05;
 		}
 
+		// ピンされたタブにはボーナスを付ける
+		if (item.pinned) {
+			score += 0.05;
+		}
+
 		score = Math.min(1, Math.max(0, score)); // 0-1の範囲に制限
 
 		return {

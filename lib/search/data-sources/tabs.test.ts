@@ -148,6 +148,7 @@ describe("TabDataSource", () => {
 						title: "Same Title",
 						windowId: 1,
 						active: true,
+						pinned: false,
 					},
 					{
 						id: 2,
@@ -155,6 +156,7 @@ describe("TabDataSource", () => {
 						title: "Same Title",
 						windowId: 1,
 						active: false,
+						pinned: false,
 					},
 				],
 			});
@@ -164,6 +166,36 @@ describe("TabDataSource", () => {
 			const activeTab = results.find((r) => r.id === "tab-1");
 			const inactiveTab = results.find((r) => r.id === "tab-2");
 			expect(activeTab?.score).toBeGreaterThan(inactiveTab?.score ?? 0);
+		});
+
+		it("ピンされたタブはスコアにボーナスが付く", async () => {
+			const mockSearchTabs = vi.mocked(searchTabs);
+			mockSearchTabs.mockResolvedValue({
+				items: [
+					{
+						id: 1,
+						url: "https://same.com",
+						title: "Same Title",
+						windowId: 1,
+						active: false,
+						pinned: true,
+					},
+					{
+						id: 2,
+						url: "https://same.com",
+						title: "Same Title",
+						windowId: 1,
+						active: false,
+						pinned: false,
+					},
+				],
+			});
+
+			const results = await dataSource.search("same");
+
+			const pinnedTab = results.find((r) => r.id === "tab-1");
+			const unpinnedTab = results.find((r) => r.id === "tab-2");
+			expect(pinnedTab?.score).toBeGreaterThan(unpinnedTab?.score ?? 0);
 		});
 	});
 });

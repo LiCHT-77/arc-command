@@ -45,6 +45,7 @@ export type TabItem = {
 	title: string;
 	windowId: number;
 	active: boolean;
+	pinned: boolean;
 };
 
 export type SearchTabsResponse = {
