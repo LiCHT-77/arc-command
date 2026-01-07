@@ -1,6 +1,7 @@
 import type { HistoryItem } from "@/lib/messages";
 import { openTab, searchHistory } from "@/lib/messages";
 import type { DataSource, SearchResult } from "../types";
+import { isSearchEngineUrl } from "./is-search-engine-url";
 
 /**
  * 履歴検索のデータソース
@@ -10,6 +11,7 @@ export class HistoryDataSource implements DataSource {
 
 	/**
 	 * クエリに基づいて履歴を検索し、SearchResultに変換する
+	 * 検索エンジンの検索結果ページは除外される
 	 */
 	async search(query: string): Promise<SearchResult[]> {
 		if (!query.trim()) {
@@ -17,7 +19,9 @@ export class HistoryDataSource implements DataSource {
 		}
 
 		const response = await searchHistory(query);
-		return response.items.map((item) => this.toSearchResult(item, query));
+		return response.items
+			.filter((item) => !isSearchEngineUrl(item.url))
+			.map((item) => this.toSearchResult(item, query));
 	}
 
 	/**

@@ -131,5 +131,61 @@ describe("HistoryDataSource", () => {
 				expect(titleMatch.score).toBeGreaterThan(urlMatch.score);
 			}
 		});
+
+		it("検索エンジンのURLは結果から除外される", async () => {
+			const mockSearchHistory = vi.mocked(searchHistory);
+			mockSearchHistory.mockResolvedValue({
+				items: [
+					{
+						id: "1",
+						url: "https://www.google.com/search?q=test",
+						title: "test - Google 検索",
+						lastVisitTime: Date.now(),
+					},
+					{
+						id: "2",
+						url: "https://example.com",
+						title: "Example Site",
+						lastVisitTime: Date.now() - 1000,
+					},
+					{
+						id: "3",
+						url: "https://www.bing.com/search?q=test",
+						title: "test - Bing",
+						lastVisitTime: Date.now() - 2000,
+					},
+				],
+			});
+
+			const results = await dataSource.search("test");
+
+			// 検索エンジンのURLは除外され、通常のサイトのみ返される
+			expect(results).toHaveLength(1);
+			expect(results[0].url).toBe("https://example.com");
+		});
+
+		it("すべての結果が検索エンジンの場合は空配列を返す", async () => {
+			const mockSearchHistory = vi.mocked(searchHistory);
+			mockSearchHistory.mockResolvedValue({
+				items: [
+					{
+						id: "1",
+						url: "https://www.google.com/search?q=test",
+						title: "test - Google 検索",
+						lastVisitTime: Date.now(),
+					},
+					{
+						id: "2",
+						url: "https://search.yahoo.co.jp/search?p=test",
+						title: "test - Yahoo!検索",
+						lastVisitTime: Date.now() - 1000,
+					},
+				],
+			});
+
+			const results = await dataSource.search("test");
+
+			expect(results).toHaveLength(0);
+		});
 	});
 });
