@@ -8,6 +8,7 @@ import {
 	CommandList,
 } from "@/components/ui/command";
 import { HistoryDataSource, TabDataSource } from "@/lib/search/data-sources";
+import { deduplicateByUrl } from "@/lib/search/deduplicate-by-url";
 import { useSearch } from "@/lib/search/use-search";
 import { useShadowContainer } from "@/lib/shadow-container-context";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,9 @@ export default function App() {
 
 	// useSearchフックを使用して検索結果を取得
 	const { results } = useSearch(query, [tabDataSource, historyDataSource]);
+
+	// 同じURLの結果はタブを優先して重複を除去
+	const filteredResults = useMemo(() => deduplicateByUrl(results), [results]);
 
 	// cmd + shift + K でトグル
 	useEffect(() => {
@@ -90,7 +94,7 @@ export default function App() {
 						/>
 						<CommandList className="overscroll-contain">
 							<CommandEmpty>結果が見つかりません</CommandEmpty>
-							{results.map((result) => (
+							{filteredResults.map((result) => (
 								<SearchResultItem
 									key={result.id}
 									result={result}
