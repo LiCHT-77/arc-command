@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { SearchResultItem } from "@/components/search-result-item";
 import {
 	Command,
@@ -24,6 +24,7 @@ function notifyClose() {
 
 export default function App() {
 	const [query, setQuery] = useState("");
+	const inputRef = useRef<HTMLInputElement>(null);
 
 	// DataSourceのインスタンスを作成（メモ化して再作成を防ぐ）
 	const bookmarkDataSource = useMemo(() => new BookmarkDataSource(), []);
@@ -51,6 +52,18 @@ export default function App() {
 
 		document.addEventListener("keydown", handleKeyDown);
 		return () => document.removeEventListener("keydown", handleKeyDown);
+	}, []);
+
+	// focusメッセージを受け取ったらinputにフォーカス
+	useEffect(() => {
+		const handleMessage = (e: MessageEvent) => {
+			if (e.data?.type === "arc-command:focus") {
+				inputRef.current?.focus();
+			}
+		};
+
+		window.addEventListener("message", handleMessage);
+		return () => window.removeEventListener("message", handleMessage);
 	}, []);
 
 	const handleSelect = useCallback(() => {
@@ -83,6 +96,7 @@ export default function App() {
 					className="[&_[cmdk-group-heading]]:text-muted-foreground **:data-[slot=command-input-wrapper]:h-12 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
 				>
 					<CommandInput
+						ref={inputRef}
 						placeholder="タブ・ブックマーク・履歴を検索..."
 						value={query}
 						onValueChange={setQuery}

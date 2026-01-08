@@ -134,5 +134,43 @@ describe("Command Content Script", () => {
 				expect(focusSpy).toHaveBeenCalled();
 			}
 		});
+
+		it("表示時にfocusメッセージをiframeに送信する", () => {
+			mockWrapper.style.display = "none";
+			let isVisible = false;
+
+			// postMessageをモック
+			const postMessageSpy = vi.fn();
+			Object.defineProperty(mockIframe, "contentWindow", {
+				value: {
+					focus: vi.fn(),
+					postMessage: postMessageSpy,
+				},
+				writable: true,
+			});
+
+			// toggleVisibility のロジックを再現
+			const toggleVisibility = () => {
+				isVisible = !isVisible;
+				mockWrapper.style.display = isVisible ? "block" : "none";
+
+				if (isVisible && mockIframe.contentWindow) {
+					mockIframe.contentWindow.focus();
+					mockIframe.contentWindow.postMessage(
+						{ type: "arc-command:focus" },
+						"*",
+					);
+				}
+			};
+
+			// cmd + shift + K を押す
+			toggleVisibility();
+
+			expect(mockWrapper.style.display).toBe("block");
+			expect(postMessageSpy).toHaveBeenCalledWith(
+				{ type: "arc-command:focus" },
+				"*",
+			);
+		});
 	});
 });

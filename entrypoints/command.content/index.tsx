@@ -36,9 +36,13 @@ export default defineContentScript({
 			isVisible = !isVisible;
 			wrapper.style.display = isVisible ? "block" : "none";
 
-			// 表示時にiframeにフォーカスを移す
+			// 表示時にiframeにフォーカスを移し、inputにフォーカスするようメッセージを送信
 			if (isVisible && ui.iframe?.contentWindow) {
 				ui.iframe.contentWindow.focus();
+				ui.iframe.contentWindow.postMessage(
+					{ type: "arc-command:focus" },
+					"*",
+				);
 			}
 		};
 

@@ -115,6 +115,26 @@ describe("iframe App", () => {
 		});
 	});
 
+	describe("フォーカス制御", () => {
+		it("arc-command:focusメッセージを受け取るとinputにフォーカスする", async () => {
+			render(<App />);
+
+			const input = screen.getByRole("combobox");
+
+			// 一旦別の要素にフォーカスを移す
+			input.blur();
+			expect(document.activeElement).not.toBe(input);
+
+			// focusメッセージを送信
+			window.postMessage({ type: "arc-command:focus" }, "*");
+
+			// inputにフォーカスが移ることを確認
+			await waitFor(() => {
+				expect(document.activeElement).toBe(input);
+			});
+		});
+	});
+
 	describe("履歴検索", () => {
 		it("検索クエリを入力すると履歴を検索する", async () => {
 			const mockSearchHistory = vi.mocked(searchHistory);
