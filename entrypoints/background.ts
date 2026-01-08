@@ -118,14 +118,18 @@ async function handleSearchTabs(query: string): Promise<SearchTabsResponse> {
 	};
 }
 
-function handleSwitchToTab(tabId: number): void {
+export async function handleSwitchToTab(tabId: number): Promise<void> {
 	// タブをアクティブにする
-	browser.tabs.update(tabId, { active: true });
+	await browser.tabs.update(tabId, { active: true });
 	// タブが属するウィンドウもフォーカスする
-	browser.tabs.get(tabId).then((tab) => {
-		if (tab.windowId) {
-			browser.windows.update(tab.windowId, { focused: true });
-		}
+	const tab = await browser.tabs.get(tabId);
+	if (tab.windowId) {
+		await browser.windows.update(tab.windowId, { focused: true });
+	}
+	// ページにフォーカスを当てる
+	await browser.scripting.executeScript({
+		target: { tabId },
+		func: () => window.focus(),
 	});
 }
 

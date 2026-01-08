@@ -8,7 +8,7 @@ export default defineConfig({
 		plugins: [tailwindcss()],
 	}),
 	manifest: {
-		permissions: ["history", "tabs", "bookmarks"],
+		permissions: ["history", "tabs", "bookmarks", "scripting"],
 		web_accessible_resources: [
 			{
 				resources: ["command-iframe.html"],
