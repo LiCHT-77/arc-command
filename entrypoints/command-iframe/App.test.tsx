@@ -1,6 +1,11 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+	cleanup,
+	fireEvent,
+	render,
+	screen,
+	waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { ShadowContainerProvider } from "@/lib/shadow-container-context";
 import App from "./App";
 
 // Mock the messages module
@@ -19,67 +24,94 @@ import {
 	searchTabs,
 } from "@/lib/messages";
 
-// テスト用のラッパーコンポーネント
-function TestWrapper({ children }: { children: React.ReactNode }) {
-	return (
-		<ShadowContainerProvider container={document.body}>
-			{children}
-		</ShadowContainerProvider>
-	);
-}
+describe("iframe App", () => {
+	let postMessageSpy: ReturnType<typeof vi.spyOn>;
 
-describe("App", () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
 		// デフォルトで空の結果を返す
 		vi.mocked(searchBookmarks).mockResolvedValue({ items: [] });
 		vi.mocked(searchTabs).mockResolvedValue({ items: [] });
+
+		// window.parent.postMessage をモック
+		postMessageSpy = vi.spyOn(window.parent, "postMessage");
 	});
 
 	afterEach(() => {
+		cleanup();
 		vi.restoreAllMocks();
 	});
 
-	describe("キーボードショートカット", () => {
-		it("cmd + shift + K でCommandDialogが開く", async () => {
-			render(<App />, { wrapper: TestWrapper });
+	describe("初期表示", () => {
+		it("Appがレンダリングされる", () => {
+			render(<App />);
 
-			// 初期状態ではCommandDialogは表示されていない
-			expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-
-			// cmd + shift + K を押す
-			fireEvent.keyDown(document, {
-				key: "k",
-				metaKey: true,
-				shiftKey: true,
-			});
-
-			// CommandDialogが表示される
-			await waitFor(() => {
-				expect(screen.getByRole("dialog")).toBeInTheDocument();
-			});
+			// 検索入力フィールドが表示される
+			expect(screen.getByRole("combobox")).toBeInTheDocument();
 		});
 
-		it("Escapeで閉じる", async () => {
-			render(<App />, { wrapper: TestWrapper });
+		it("プレースホルダーが表示される", () => {
+			render(<App />);
 
-			// 開く
-			fireEvent.keyDown(document, {
-				key: "k",
-				metaKey: true,
-				shiftKey: true,
-			});
+			expect(
+				screen.getByPlaceholderText("タブ・ブックマーク・履歴を検索..."),
+			).toBeInTheDocument();
+		});
+	});
 
-			await waitFor(() => {
-				expect(screen.getByRole("dialog")).toBeInTheDocument();
-			});
+	describe("postMessage通信", () => {
+		it("Escapeキーで親ウィンドウにcloseメッセージを送信する", async () => {
+			render(<App />);
 
-			// Escapeで閉じる
+			// Escapeを押す
 			fireEvent.keyDown(document, { key: "Escape" });
 
-			await waitFor(() => {
-				expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+			expect(postMessageSpy).toHaveBeenCalledWith(
+				{ type: "arc-command:close" },
+				"*",
+			);
+		});
+
+		it("アイテム選択後に親ウィンドウにcloseメッセージを送信する", async () => {
+			const mockSearchHistory = vi.mocked(searchHistory);
+			const mockOpenTab = vi.mocked(openTab);
+
+			mockSearchHistory.mockResolvedValue({
+				items: [
+					{
+						id: "1",
+						url: "https://example.com",
+						title: "Example Site",
+						lastVisitTime: Date.now(),
+					},
+				],
 			});
+			mockOpenTab.mockResolvedValue(undefined);
+
+			render(<App />);
+
+			// 検索
+			const input = screen.getByRole("combobox");
+			fireEvent.change(input, { target: { value: "example" } });
+
+			await waitFor(() => {
+				expect(screen.getByText("Example Site")).toBeInTheDocument();
+			});
+
+			// アイテムを選択
+			const item = screen.getByText("Example Site");
+			fireEvent.click(item);
+
+			// openTabが呼ばれる
+			await waitFor(() => {
+				expect(mockOpenTab).toHaveBeenCalledWith("https://example.com");
+			});
+
+			// 親ウィンドウにcloseメッセージが送信される
+			expect(postMessageSpy).toHaveBeenCalledWith(
+				{ type: "arc-command:close" },
+				"*",
+			);
 		});
 	});
 
@@ -97,18 +129,7 @@ describe("App", () => {
 				],
 			});
 
-			render(<App />, { wrapper: TestWrapper });
-
-			// 開く
-			fireEvent.keyDown(document, {
-				key: "k",
-				metaKey: true,
-				shiftKey: true,
-			});
-
-			await waitFor(() => {
-				expect(screen.getByRole("dialog")).toBeInTheDocument();
-			});
+			render(<App />);
 
 			// 検索クエリを入力
 			const input = screen.getByRole("combobox");
@@ -141,18 +162,7 @@ describe("App", () => {
 			});
 			mockOpenTab.mockResolvedValue(undefined);
 
-			render(<App />, { wrapper: TestWrapper });
-
-			// 開く
-			fireEvent.keyDown(document, {
-				key: "k",
-				metaKey: true,
-				shiftKey: true,
-			});
-
-			await waitFor(() => {
-				expect(screen.getByRole("dialog")).toBeInTheDocument();
-			});
+			render(<App />);
 
 			// 検索
 			const input = screen.getByRole("combobox");

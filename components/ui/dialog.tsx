@@ -2,7 +2,6 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 import type * as React from "react";
 
-import { useShadowContainer } from "@/lib/shadow-container-context";
 import { cn } from "@/lib/utils";
 
 function Dialog({
@@ -18,17 +17,9 @@ function DialogTrigger({
 }
 
 function DialogPortal({
-	container,
 	...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
-	const shadowContainer = useShadowContainer();
-	return (
-		<DialogPrimitive.Portal
-			data-slot="dialog-portal"
-			container={container ?? shadowContainer ?? undefined}
-			{...props}
-		/>
-	);
+	return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
 }
 
 function DialogClose({

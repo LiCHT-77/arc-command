@@ -9,5 +9,11 @@ export default defineConfig({
 	}),
 	manifest: {
 		permissions: ["history", "tabs", "bookmarks"],
+		web_accessible_resources: [
+			{
+				resources: ["command-iframe.html"],
+				matches: ["<all_urls>"],
+			},
+		],
 	},
 });
